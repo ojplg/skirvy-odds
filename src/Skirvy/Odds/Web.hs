@@ -3,10 +3,19 @@ module Skirvy.Odds.Web
     ) where
 
 import Control.Monad (msum)
-import Happstack.Server (nullConf, simpleHTTP, ok, dir, nullDir)
+import Happstack.Server (nullConf, simpleHTTP, ok, dir, nullDir, 
+                         serveDirectory, Browsing (DisableBrowsing),
+                         toResponse, serveFile, asContentType)
 
 handleRequest :: IO ()
+{--
 handleRequest = simpleHTTP nullConf $ msum [ dir "foo" $ ok "Foo Response",
                                              dir "bar" $ ok "Bar BAR BAR",
+                                             dir "static" $ serveDirectory EnableBrowsing ["index.html"] ".",
                                              nullDir >> ok "Home Page"]
+--}
 
+handleRequest = simpleHTTP nullConf $ msum 
+                  [ dir "foo" $ ok $ toResponse "Foo" , 
+                    dir "static" $ serveDirectory DisableBrowsing ["index.html"] "./web-assets/" ,
+                    nullDir >> serveFile (asContentType "text/html") "./web-assets/index.html" ]
