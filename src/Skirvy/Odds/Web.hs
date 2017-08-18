@@ -6,13 +6,17 @@ import Control.Monad (msum, liftM)
 import Happstack.Server (nullConf, simpleHTTP, ok, dir, nullDir, look,
                          serveDirectory, Browsing (DisableBrowsing), Response,
                          toResponse, serveFile, asContentType, ServerPart,
-                         HasRqData)
+                         ServerPartT, HasRqData)
 
 handleRequest :: IO ()
-handleRequest = simpleHTTP nullConf $ msum 
-                  [ dir "calculate" $ handleCalculateRequest,
-                    dir "static" $ serveDirectory DisableBrowsing [] "./web-assets/" ,
-                    nullDir >> serveFile (asContentType "text/html") "./web-assets/index.html" ]
+handleRequest = simpleHTTP nullConf $ msum routes
+
+routes :: [ServerPartT IO Response]
+routes = [ dir "calculate" $ handleCalculateRequest,
+           dir "static" $ serveDirectory DisableBrowsing [] "./web-assets/" ,
+           nullDir >> serveFile (asContentType "text/html") "./web-assets/index.html" ]
+
+
 
 handleCalculateRequest :: ServerPart Response
 handleCalculateRequest =
