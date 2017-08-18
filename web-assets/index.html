@@ -1,24 +1,16 @@
 <html>
   <head>
     <title>Skirvy Calculations</title>
+    <script src="static/main.js"></script>
   </head>
-  <body>
+  <body onload="populateForm()">
     <div>This is the Skirvy Odds home page</div>
     <label for="attacker">Attacker</label>
-    <select name="attacker" form="calculate_form">
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
+    <select id="attacker" name="attacker" form="calculate_form">
     </select>
     <br>
     <label for="defender">Defender</label>
-    <select name="defender" form="calculate_form">
-      <option value="1">1</option>
-      <option value="2">2</option>
-      <option value="3">3</option>
-      <option value="4">4</option>
-      <option value="5">5</option>
+    <select id="defender" name="defender" form="calculate_form">
     </select>
     <br>
     <form action="/calculate" id="calculate_form">
