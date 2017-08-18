@@ -17,8 +17,6 @@ routes = [ dir "calculate" $ handleCalculateRequest,
            dir "static" $ serveDirectory DisableBrowsing [] "./web-assets/" ,
            nullDir >> serveFile (asContentType "text/html") "./web-assets/index.html" ]
 
-
-
 handleCalculateRequest :: ServerPart Response
 handleCalculateRequest =
   do attacker <- lookInt "attacker"
