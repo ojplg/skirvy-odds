@@ -7,6 +7,7 @@ import Happstack.Server (nullConf, simpleHTTP, ok, dir, nullDir, look,
                          serveDirectory, Browsing (DisableBrowsing), Response,
                          toResponse, serveFile, asContentType, ServerPart,
                          ServerPartT, HasRqData)
+import Skirvy.Odds.Calculator (calculate)
 
 handleRequest :: IO ()
 handleRequest = simpleHTTP nullConf $ msum routes
@@ -22,12 +23,8 @@ handleCalculateRequest :: ServerPart Response
 handleCalculateRequest =
   do attacker <- lookInt "attacker"
      defender <- lookInt "defender"
-     ok $ toResponse $ doCalculation attacker defender
+     ok $ toResponse $ calculate attacker defender
 
 lookInt :: (HasRqData m, Monad m) => String -> m Int
 lookInt = liftM read . look
 
-doCalculation :: Int -> Int -> String
-doCalculation attacker defender = 
-    "Trying to calculate for attacker " ++ (show attacker)
-       ++ " and defender " ++ (show defender)

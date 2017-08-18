@@ -15,7 +15,7 @@ cabal-version:       >=1.10
 
 library
   hs-source-dirs:      src
-  exposed-modules:     Skirvy.Odds.Web
+  exposed-modules:     Skirvy.Odds.Web, Skirvy.Odds.Calculator
   build-depends:       base >= 4.7 && < 5
                        , happstack-server
   default-language:    Haskell2010
