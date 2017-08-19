@@ -1,7 +1,7 @@
 module Skirvy.Odds.Calculator
   ( calculate ) where
 
-import qualified Data.Map.Lazy as M (Map, singleton, fromList, map, empty,
+import qualified Data.Map.Lazy as M (Map, singleton, fromList, map, empty, keys,
                                      mapWithKey, foldrWithKey, alter, unionWith)
 
 data Results = Conquest | Defeat
@@ -21,6 +21,13 @@ calculate attacker defender =
 
 dieRound :: M.Map BattleCounter Int -> M.Map BattleCounter Int
 dieRound m = M.foldrWithKey myInsert M.empty m
+
+done :: M.Map BattleCounter Int -> Bool
+done m = all isResolved $ M.keys m
+
+completeRounds :: M.Map BattleCounter Int -> M.Map BattleCounter Int
+completeRounds m = if done m then m
+                     else completeRounds $ dieRound m
 
 myInsert :: BattleCounter -> Int -> M.Map BattleCounter Int -> M.Map BattleCounter Int
 myInsert bc n m = M.unionWith (+) (applyOutcomes bc n) m
