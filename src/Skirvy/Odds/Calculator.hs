@@ -2,7 +2,7 @@ module Skirvy.Odds.Calculator
   ( calculate ) where
 
 import qualified Data.Map.Lazy as M (Map, singleton, fromList, map, empty, keys,
-                                     mapWithKey, foldrWithKey, alter, unionWith)
+                                     foldrWithKey, unionWith)
 
 data BattleCounter = BattleCounter { attacker :: Int, defender :: Int } deriving (Show, Eq, Ord)
 
@@ -42,9 +42,15 @@ applyOutcome (BattleCounter atr dfr) ((dfrLost, atrLost), count) =
                 (BattleCounter (atr - atrLost) (dfr - dfrLost), count)
 
 isResolved :: BattleCounter -> Bool
-isResolved (BattleCounter 1 _) = True
-isResolved (BattleCounter _ 0) = True
-isResolved _                   = False
+isResolved bc = attackerWon bc || defenderWon bc
+
+attackerWon :: BattleCounter -> Bool
+attackerWon (BattleCounter _ 0) = True
+attackerWon _                   = False
+
+defenderWon :: BattleCounter -> Bool
+defenderWon (BattleCounter 1 _) = True
+defenderWon _                   = False
 
 defenderDice :: Int -> Int
 defenderDice a = min a 2 
