@@ -1,8 +1,8 @@
 module Skirvy.Odds.Calculator
   ( calculate ) where
 
-import qualified Data.Map.Lazy as M (Map, singleton, fromList, map, empty, keys,
-                                     foldrWithKey, unionWith)
+import qualified Data.Map.Lazy as M (Map, singleton, fromList, map, empty, keys, mapKeys,
+                                     foldrWithKey, unionWith, elems, partitionWithKey)
 
 data BattleCounter = BattleCounter { attacker :: Int, defender :: Int } deriving (Show, Eq, Ord)
 
@@ -10,7 +10,21 @@ calculate :: Int -> Int -> String
 calculate attacker defender = 
     "Trying to calculate for attacker " ++ (show attacker)
        ++ " and defender " ++ (show defender) ++ "\n"
-       ++ show (allOutcomes attacker defender)
+       ++ show (outcomeCounts attacker defender)
+
+reduceToIntMap :: M.Map BattleCounter Int -> M.Map Int Int
+reduceToIntMap = M.mapKeys remainder
+
+outcomeCounts :: Int -> Int -> (M.Map Int Int, M.Map Int Int)
+outcomeCounts att def = (reduceToIntMap aWins, reduceToIntMap dWins)
+  where (aWins, dWins) = winsAndLosses att def
+
+winsAndLosses :: Int -> Int -> (M.Map BattleCounter Int, M.Map BattleCounter Int)
+winsAndLosses att def = M.partitionWithKey pred $ allOutcomes att def
+  where pred bc _ = attackerWon bc
+
+outcomeCount :: M.Map BattleCounter Int -> Int
+outcomeCount = sum . M.elems
 
 allOutcomes :: Int -> Int -> M.Map BattleCounter Int
 allOutcomes att def = completeRounds $ applyOutcomes (BattleCounter att def) 0
@@ -45,6 +59,11 @@ attackerWon _                   = False
 defenderWon :: BattleCounter -> Bool
 defenderWon (BattleCounter 1 _) = True
 defenderWon _                   = False
+
+remainder :: BattleCounter -> Int
+remainder bc = if attackerWon bc then attacker bc
+                 else if defenderWon bc then defender bc
+                 else error $ "Looked for remainder in unresolved battle " ++ show bc
 
 defenderDice :: Int -> Int
 defenderDice a = min a 2 
