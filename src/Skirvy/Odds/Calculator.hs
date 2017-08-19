@@ -1,27 +1,37 @@
 module Skirvy.Odds.Calculator
   ( calculate ) where
 
-import Data.Map.Lazy (Map, singleton, fromList)
+import qualified Data.Map.Lazy as M (Map, singleton, fromList, map)
 
 data Results = Conquest | Defeat
 data BattleCounter = BattleCounter { attacker :: Int, defender :: Int } deriving (Show, Eq, Ord)
-data BattleOdds = BattleOdds { remaining :: Map BattleCounter Float }
+data BattleOdds = BattleOdds { remaining :: M.Map BattleCounter Float }
 
 calculate :: Int -> Int -> String
 calculate attacker defender = 
     "Trying to calculate for attacker " ++ (show attacker)
        ++ " and defender " ++ (show defender)
 
-dieRound :: Map BattleCounter Int -> Map BattleCounter Int
+dieRound :: M.Map BattleCounter Int -> M.Map BattleCounter Int
 dieRound m = m
 
-applyOutcomes :: BattleCounter -> Map BattleCounter Int
-applyOutcomes bc = fromList $ map (applyOutcome bc) outcomes
+applyOutcomes :: BattleCounter -> Int -> M.Map BattleCounter Int
+applyOutcomes bc n = if isResolved bc 
+                        then M.singleton bc n
+                        else M.map (+ n) $ applyOutcomes' bc
+
+applyOutcomes' :: BattleCounter -> M.Map BattleCounter Int
+applyOutcomes' bc = M.fromList $ map (applyOutcome bc) outcomes
   where outcomes = rollOutcomes (attackerDice $ attacker bc) (defenderDice $ defender bc)
 
 applyOutcome :: BattleCounter -> ((Int,Int),Int) -> (BattleCounter, Int)
 applyOutcome (BattleCounter atr dfr) ((dfrLost, atrLost), count) = 
                 (BattleCounter (atr - atrLost) (dfr - dfrLost), count)
+
+isResolved :: BattleCounter -> Bool
+isResolved (BattleCounter 1 _) = True
+isResolved (BattleCounter _ 0) = True
+isResolved _                   = False
 
 defenderDice :: Int -> Int
 defenderDice a = min a 2 
