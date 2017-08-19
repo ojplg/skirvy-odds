@@ -6,24 +6,18 @@ import qualified Data.Map.Lazy as M (Map, singleton, fromList, map, empty, keys,
 
 data BattleCounter = BattleCounter { attacker :: Int, defender :: Int } deriving (Show, Eq, Ord)
 
-allOutcomes :: Int -> Int -> M.Map BattleCounter Int
-allOutcomes att def = completeRounds $ applyOutcomes (BattleCounter att def) 0
-
 calculate :: Int -> Int -> String
 calculate attacker defender = 
     "Trying to calculate for attacker " ++ (show attacker)
        ++ " and defender " ++ (show defender) ++ "\n"
        ++ show (allOutcomes attacker defender)
 
-dieRound :: M.Map BattleCounter Int -> M.Map BattleCounter Int
-dieRound m = M.foldrWithKey myInsert M.empty m
-
-done :: M.Map BattleCounter Int -> Bool
-done m = all isResolved $ M.keys m
+allOutcomes :: Int -> Int -> M.Map BattleCounter Int
+allOutcomes att def = completeRounds $ applyOutcomes (BattleCounter att def) 0
 
 completeRounds :: M.Map BattleCounter Int -> M.Map BattleCounter Int
-completeRounds m = if done m then m
-                     else completeRounds $ dieRound m
+completeRounds m = if all isResolved $ M.keys m then m
+                     else completeRounds $ M.foldrWithKey myInsert M.empty m
 
 myInsert :: BattleCounter -> Int -> M.Map BattleCounter Int -> M.Map BattleCounter Int
 myInsert bc n m = M.unionWith (+) (applyOutcomes bc n) m
