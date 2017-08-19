@@ -4,20 +4,16 @@ module Skirvy.Odds.Calculator
 import qualified Data.Map.Lazy as M (Map, singleton, fromList, map, empty, keys,
                                      mapWithKey, foldrWithKey, alter, unionWith)
 
-data Results = Conquest | Defeat
 data BattleCounter = BattleCounter { attacker :: Int, defender :: Int } deriving (Show, Eq, Ord)
-data BattleOdds = BattleOdds { remaining :: M.Map BattleCounter Float }
 
-start :: BattleCounter
-start = BattleCounter 5 3
-
-firstRound :: M.Map BattleCounter Int
-firstRound = applyOutcomes start 0
+allOutcomes :: Int -> Int -> M.Map BattleCounter Int
+allOutcomes att def = completeRounds $ applyOutcomes (BattleCounter att def) 0
 
 calculate :: Int -> Int -> String
 calculate attacker defender = 
     "Trying to calculate for attacker " ++ (show attacker)
-       ++ " and defender " ++ (show defender)
+       ++ " and defender " ++ (show defender) ++ "\n"
+       ++ show (allOutcomes attacker defender)
 
 dieRound :: M.Map BattleCounter Int -> M.Map BattleCounter Int
 dieRound m = M.foldrWithKey myInsert M.empty m
