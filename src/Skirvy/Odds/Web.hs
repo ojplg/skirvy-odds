@@ -7,7 +7,7 @@ import Happstack.Server (nullConf, simpleHTTP, ok, dir, nullDir, look,
                          serveDirectory, Browsing (DisableBrowsing), Response,
                          toResponse, serveFile, asContentType, ServerPart,
                          ServerPartT, HasRqData)
-import Skirvy.Odds.Calculator (calculate, outcomeCounts)
+import Skirvy.Odds.Calculator (outcomeCounts)
 import Text.Blaze.Html5 as H (Html, html, body, span, toHtml, table, tr, td, th)
 import Text.Blaze.Html5.Attributes as A ()
 import Data.Map.Lazy as M (Map, foldrWithKey)

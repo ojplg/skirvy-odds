@@ -1,27 +1,21 @@
 module Skirvy.Odds.Calculator
-  ( calculate, outcomeCounts ) where
+  ( outcomeCounts ) where
 
 import qualified Data.Map.Lazy as M (Map, singleton, fromList, map, empty, keys, mapKeys,
                                      foldrWithKey, unionWith, elems, partitionWithKey)
 
 data BattleCounter = BattleCounter { attacker :: Int, defender :: Int } deriving (Show, Eq, Ord)
 
-calculate :: Int -> Int -> String
-calculate attacker defender = 
-    "Trying to calculate for attacker " ++ (show attacker)
-       ++ " and defender " ++ (show defender) ++ "\n"
-       ++ show (outcomeCounts attacker defender)
-
-reduceToIntMap :: M.Map BattleCounter Int -> M.Map Int (Int, Float)
-reduceToIntMap m = M.map (\n -> (n, ratioAsFloat n total)) $ M.mapKeys remainder m
-  where total = outcomeCount m
+reduceToIntMap :: M.Map BattleCounter Int -> Int -> M.Map Int (Int, Float)
+reduceToIntMap m total = M.map (\n -> (n, ratioAsFloat n total)) $ M.mapKeys remainder m
 
 ratioAsFloat :: Int -> Int -> Float
 ratioAsFloat num den = (fromIntegral num) / (fromIntegral den)
 
 outcomeCounts :: Int -> Int -> (M.Map Int (Int, Float), M.Map Int (Int, Float))
-outcomeCounts att def = (reduceToIntMap aWins, reduceToIntMap dWins)
+outcomeCounts att def = (reduceToIntMap aWins total, reduceToIntMap dWins total)
   where (aWins, dWins) = winsAndLosses att def
+        total = outcomeCount aWins + outcomeCount dWins
 
 winsAndLosses :: Int -> Int -> (M.Map BattleCounter Int, M.Map BattleCounter Int)
 winsAndLosses att def = M.partitionWithKey pred $ allOutcomes att def
