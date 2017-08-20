@@ -25,17 +25,20 @@ handleCalculateRequest :: ServerPart Response
 handleCalculateRequest =
   do attacker <- lookInt "attacker"
      defender <- lookInt "defender"
-     ok $ toResponse $ aTable (outcomeCounts attacker defender)
+     ok $ toResponse $ renderOutcomes $ outcomeCounts attacker defender
+
+renderOutcomes :: (M.Map Int (Int, Float), M.Map Int (Int, Float)) -> H.Html
+renderOutcomes (attackerWins, defenderWins) = asTable attackerWins >> asTable defenderWins
 
 lookInt :: (HasRqData m, Monad m) => String -> m Int
 lookInt = liftM read . look
 
-aTable :: (M.Map Int (Int,Float), M.Map Int (Int,Float)) -> H.Html
-aTable (winCounts, lossCounts) = H.table $ H.tr $ 
-                                   do H.th $ H.toHtml "Remainder"
-                                      H.th $ H.toHtml "Count"
-                                      H.th $ H.toHtml "Percentage"
-                                      rowsFromMap winCounts
+asTable :: M.Map Int (Int,Float) -> H.Html
+asTable counts = H.table $ H.tr $ 
+                   do H.th $ H.toHtml "Remainder"
+                      H.th $ H.toHtml "Count"
+                      H.th $ H.toHtml "Percentage"
+                      rowsFromMap counts
 
 rowsFromMap :: M.Map Int (Int,Float) -> H.Html
 rowsFromMap m = M.foldrWithKey (\i j rs -> combine rs (tableRow i j)) (H.toHtml "") m
