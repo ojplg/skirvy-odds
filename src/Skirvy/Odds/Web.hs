@@ -51,4 +51,4 @@ tableRow a b = H.tr $ do
                         H.td $ H.toHtml $ formatFloat b
 
 formatFloat :: Float -> String
-formatFloat f = printf "%.3f" f
+formatFloat f = printf "%.4f" f
