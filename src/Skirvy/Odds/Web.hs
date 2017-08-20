@@ -8,9 +8,9 @@ import Happstack.Server (nullConf, simpleHTTP, ok, dir, nullDir, look,
                          toResponse, serveFile, asContentType, ServerPart,
                          ServerPartT, HasRqData)
 import Skirvy.Odds.Calculator (partitionedOutcomes)
-import Text.Blaze.Html5 as H (Html, html, body, span, toHtml, table, tr, td, th)
+import Text.Blaze.Html5 as H (Html, html, body, span, toHtml, table, tr, td, th, h4)
 import Text.Blaze.Html5.Attributes as A ()
-import Data.Map.Lazy as M (Map, foldrWithKey)
+import Data.Map.Lazy as M (Map, foldrWithKey, elems)
 import Text.Printf (printf)
 
 handleRequest :: IO ()
@@ -28,14 +28,21 @@ handleCalculateRequest =
      ok $ toResponse $ renderOutcomes $ partitionedOutcomes attacker defender
 
 renderOutcomes :: (M.Map Int Float, M.Map Int Float) -> H.Html
-renderOutcomes (attackerWins, defenderWins) = asTable attackerWins >> asTable defenderWins
+renderOutcomes (attackerWins, defenderWins) = do
+                                                H.h4 $ H.toHtml $ "Attacker Wins " ++ percentagesSum attackerWins
+                                                asTable attackerWins 
+                                                H.h4 $ H.toHtml $ "Defender Wins " ++ percentagesSum defenderWins
+                                                asTable defenderWins
+
+percentagesSum :: M.Map Int Float -> String
+percentagesSum m = formatFloat $ sum $ M.elems m
 
 lookInt :: (HasRqData m, Monad m) => String -> m Int
 lookInt = liftM read . look
 
 asTable :: M.Map Int Float -> H.Html
 asTable counts = H.table $ H.tr $ 
-                   do H.th $ H.toHtml "Remainder"
+                   do H.th $ H.toHtml "Remaining Armies"
                       H.th $ H.toHtml "Percentage"
                       rowsFromMap counts
 
