@@ -1,5 +1,5 @@
 module Skirvy.Odds.Calculator
-  ( outcomeCounts ) where
+  ( partitionedOutcomes ) where
 
 import qualified Data.Map.Lazy as M (Map, singleton, fromList, map, empty, keys, mapKeys,
                                      foldrWithKey, unionWith, elems, partitionWithKey)
@@ -9,16 +9,13 @@ data BattleCounter = BattleCounter { attacker :: Int, defender :: Int } deriving
 ratioAsFloat :: Int -> Int -> Float
 ratioAsFloat num den = (fromIntegral num) / (fromIntegral den)
 
-outcomeCounts :: Int -> Int -> (M.Map Int (Int, Float), M.Map Int (Int, Float))
-outcomeCounts att def = (addInInt aWins, addInInt dWins)
-  where (aWins, dWins) = winsAndLosses att def
+partitionedOutcomes :: Int -> Int -> (M.Map Int Float, M.Map Int Float)
+partitionedOutcomes att def = (M.mapKeys remainder as, M.mapKeys remainder ds)
+  where (as, ds) = partitionedOutcomes' att def
 
-addInInt :: M.Map BattleCounter Float -> M.Map Int (Int, Float)
-addInInt m = M.mapKeys remainder $ M.map (\v -> (0,v)) m
-
-winsAndLosses :: Int -> Int -> (M.Map BattleCounter Float, M.Map BattleCounter Float)
-winsAndLosses att def = M.partitionWithKey pred $ allOutcomes att def
-                            where pred bc _ = attackerWon bc
+partitionedOutcomes' :: Int -> Int -> (M.Map BattleCounter Float, M.Map BattleCounter Float)
+partitionedOutcomes' att def = M.partitionWithKey pred $ allOutcomes att def
+                                 where pred bc _ = attackerWon bc
 
 allOutcomes :: Int -> Int -> M.Map BattleCounter Float
 allOutcomes att def = completeRounds $ applyOutcomes (BattleCounter att def) 1

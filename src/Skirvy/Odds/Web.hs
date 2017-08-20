@@ -7,7 +7,7 @@ import Happstack.Server (nullConf, simpleHTTP, ok, dir, nullDir, look,
                          serveDirectory, Browsing (DisableBrowsing), Response,
                          toResponse, serveFile, asContentType, ServerPart,
                          ServerPartT, HasRqData)
-import Skirvy.Odds.Calculator (outcomeCounts)
+import Skirvy.Odds.Calculator (partitionedOutcomes)
 import Text.Blaze.Html5 as H (Html, html, body, span, toHtml, table, tr, td, th)
 import Text.Blaze.Html5.Attributes as A ()
 import Data.Map.Lazy as M (Map, foldrWithKey)
@@ -25,32 +25,30 @@ handleCalculateRequest :: ServerPart Response
 handleCalculateRequest =
   do attacker <- lookInt "attacker"
      defender <- lookInt "defender"
-     ok $ toResponse $ renderOutcomes $ outcomeCounts attacker defender
+     ok $ toResponse $ renderOutcomes $ partitionedOutcomes attacker defender
 
-renderOutcomes :: (M.Map Int (Int, Float), M.Map Int (Int, Float)) -> H.Html
+renderOutcomes :: (M.Map Int Float, M.Map Int Float) -> H.Html
 renderOutcomes (attackerWins, defenderWins) = asTable attackerWins >> asTable defenderWins
 
 lookInt :: (HasRqData m, Monad m) => String -> m Int
 lookInt = liftM read . look
 
-asTable :: M.Map Int (Int,Float) -> H.Html
+asTable :: M.Map Int Float -> H.Html
 asTable counts = H.table $ H.tr $ 
                    do H.th $ H.toHtml "Remainder"
-                      H.th $ H.toHtml "Count"
                       H.th $ H.toHtml "Percentage"
                       rowsFromMap counts
 
-rowsFromMap :: M.Map Int (Int,Float) -> H.Html
+rowsFromMap :: M.Map Int Float -> H.Html
 rowsFromMap m = M.foldrWithKey (\i j rs -> combine rs (tableRow i j)) (H.toHtml "") m
 
 combine :: H.Html -> H.Html -> H.Html
 combine a b = a >> b
 
-tableRow :: Int -> (Int,Float) -> H.Html
+tableRow :: Int -> Float -> H.Html
 tableRow a b = H.tr $ do
                         H.td $ H.toHtml a
-                        H.td $ H.toHtml $ fst b
-                        H.td $ H.toHtml $ formatFloat $ snd b
+                        H.td $ H.toHtml $ formatFloat b
 
 formatFloat :: Float -> String
 formatFloat f = printf "%.3f" f
