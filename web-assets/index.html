@@ -1,20 +1,25 @@
 <html>
   <head>
-    <title>Skirvy Calculations</title>
+    <title>Skirvy Odds</title>
     <script src="static/main.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.0/build/pure-min.css" integrity="sha384-nn4HPE8lTHyVtfCBi5yW9d20FjT8BJwUXyWZT9InLYax14RDjBj46LmSztkmNP9w" crossorigin="anonymous">
   </head>
   <body onload="populateForm()">
-    <div>This is the Skirvy Odds home page</div>
-    <label for="attacker">Attacker</label>
-    <select id="attacker" name="attacker" form="calculate_form">
-    </select>
-    <br>
-    <label for="defender">Defender</label>
-    <select id="defender" name="defender" form="calculate_form">
-    </select>
-    <br>
-    <form action="/calculate" id="calculate_form">
-      <input type="submit" value="Calculate">
+    <h4>Select number of attacking and defending armies.</h4>
+    <form action="/calculate" id="calculate_form" class="pure-form pure-form-aligned">
+      <fieldset>
+        <div class="pure-control-group">
+          <label for="attacker">Attacker</label>
+          <select id="attacker" name="attacker" form="calculate_form"></select>
+        </div>
+        <div class="pure-control-group">
+          <label for="defender">Defender</label>
+          <select id="defender" name="defender" form="calculate_form"></select>
+        </div>
+        <div class="pure-controls">
+          <input type="submit" value="Calculate" class="pure-button">
+        </div>
+      </fieldset>
     </form>
   </body>
 </html>
