@@ -1,5 +1,5 @@
 module Skirvy.Odds.Calculator
-  ( calculate ) where
+  ( calculate, outcomeCounts ) where
 
 import qualified Data.Map.Lazy as M (Map, singleton, fromList, map, empty, keys, mapKeys,
                                      foldrWithKey, unionWith, elems, partitionWithKey)
