@@ -6,46 +6,43 @@ import qualified Data.Map.Lazy as M (Map, singleton, fromList, map, empty, keys,
 
 data BattleCounter = BattleCounter { attacker :: Int, defender :: Int } deriving (Show, Eq, Ord)
 
-reduceToIntMap :: M.Map BattleCounter Int -> Int -> M.Map Int (Int, Float)
-reduceToIntMap m total = M.map (\n -> (n, ratioAsFloat n total)) $ M.mapKeys remainder m
-
 ratioAsFloat :: Int -> Int -> Float
 ratioAsFloat num den = (fromIntegral num) / (fromIntegral den)
 
 outcomeCounts :: Int -> Int -> (M.Map Int (Int, Float), M.Map Int (Int, Float))
-outcomeCounts att def = (reduceToIntMap aWins total, reduceToIntMap dWins total)
+outcomeCounts att def = (addInInt aWins, addInInt dWins)
   where (aWins, dWins) = winsAndLosses att def
-        total = outcomeCount aWins + outcomeCount dWins
 
-winsAndLosses :: Int -> Int -> (M.Map BattleCounter Int, M.Map BattleCounter Int)
+addInInt :: M.Map BattleCounter Float -> M.Map Int (Int, Float)
+addInInt m = M.mapKeys remainder $ M.map (\v -> (0,v)) m
+
+winsAndLosses :: Int -> Int -> (M.Map BattleCounter Float, M.Map BattleCounter Float)
 winsAndLosses att def = M.partitionWithKey pred $ allOutcomes att def
-  where pred bc _ = attackerWon bc
+                            where pred bc _ = attackerWon bc
 
-outcomeCount :: M.Map BattleCounter Int -> Int
-outcomeCount = sum . M.elems
+allOutcomes :: Int -> Int -> M.Map BattleCounter Float
+allOutcomes att def = completeRounds $ applyOutcomes (BattleCounter att def) 1
 
-allOutcomes :: Int -> Int -> M.Map BattleCounter Int
-allOutcomes att def = completeRounds $ applyOutcomes (BattleCounter att def) 0
-
-completeRounds :: M.Map BattleCounter Int -> M.Map BattleCounter Int
+completeRounds :: M.Map BattleCounter Float -> M.Map BattleCounter Float
 completeRounds m = if all isResolved $ M.keys m then m
                      else completeRounds $ M.foldrWithKey myInsert M.empty m
 
-myInsert :: BattleCounter -> Int -> M.Map BattleCounter Int -> M.Map BattleCounter Int
+myInsert :: BattleCounter -> Float -> M.Map BattleCounter Float -> M.Map BattleCounter Float
 myInsert bc n m = M.unionWith (+) (applyOutcomes bc n) m
 
-applyOutcomes :: BattleCounter -> Int -> M.Map BattleCounter Int
-applyOutcomes bc n = if isResolved bc 
-                        then M.singleton bc n
-                        else M.map (+ n) $ applyOutcomes' bc
+applyOutcomes :: BattleCounter -> Float -> M.Map BattleCounter Float
+applyOutcomes bc r = if isResolved bc 
+                        then M.singleton bc r
+                        else M.map (* r) $ applyOutcomes' bc
 
-applyOutcomes' :: BattleCounter -> M.Map BattleCounter Int
-applyOutcomes' bc = M.fromList $ map (applyOutcome bc) outcomes
+applyOutcomes' :: BattleCounter -> M.Map BattleCounter Float
+applyOutcomes' bc = M.fromList $ map (applyOutcome bc total) outcomes
   where outcomes = rollOutcomes (attackerDice $ attacker bc) (defenderDice $ defender bc)
+        total = sum $ map snd outcomes
 
-applyOutcome :: BattleCounter -> ((Int,Int),Int) -> (BattleCounter, Int)
-applyOutcome (BattleCounter atr dfr) ((dfrLost, atrLost), count) = 
-                (BattleCounter (atr - atrLost) (dfr - dfrLost), count)
+applyOutcome :: BattleCounter -> Int -> ((Int,Int),Int) -> (BattleCounter, Float)
+applyOutcome (BattleCounter atr dfr) total ((dfrLost, atrLost), count) = 
+                (BattleCounter (atr - atrLost) (dfr - dfrLost), ratioAsFloat count total)
 
 isResolved :: BattleCounter -> Bool
 isResolved bc = attackerWon bc || defenderWon bc
