@@ -40,7 +40,7 @@ asTable counts = H.table $ H.tr $
                       rowsFromMap counts
 
 rowsFromMap :: M.Map Int Float -> H.Html
-rowsFromMap m = M.foldrWithKey (\i j rs -> rs >> (tableRow i j)) (H.toHtml "") m
+rowsFromMap m = M.foldrWithKey (\i j rs -> rs >> tableRow i j) (H.toHtml "") m
 
 tableRow :: Int -> Float -> H.Html
 tableRow a b = H.tr $ do
