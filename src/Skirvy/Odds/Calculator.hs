@@ -12,10 +12,14 @@ calculate attacker defender =
        ++ " and defender " ++ (show defender) ++ "\n"
        ++ show (outcomeCounts attacker defender)
 
-reduceToIntMap :: M.Map BattleCounter Int -> M.Map Int Int
-reduceToIntMap = M.mapKeys remainder
+reduceToIntMap :: M.Map BattleCounter Int -> M.Map Int (Int, Float)
+reduceToIntMap m = M.map (\n -> (n, ratioAsFloat n total)) $ M.mapKeys remainder m
+  where total = outcomeCount m
 
-outcomeCounts :: Int -> Int -> (M.Map Int Int, M.Map Int Int)
+ratioAsFloat :: Int -> Int -> Float
+ratioAsFloat num den = (fromIntegral num) / (fromIntegral den)
+
+outcomeCounts :: Int -> Int -> (M.Map Int (Int, Float), M.Map Int (Int, Float))
 outcomeCounts att def = (reduceToIntMap aWins, reduceToIntMap dWins)
   where (aWins, dWins) = winsAndLosses att def
 

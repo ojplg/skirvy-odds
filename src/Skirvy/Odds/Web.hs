@@ -8,9 +8,10 @@ import Happstack.Server (nullConf, simpleHTTP, ok, dir, nullDir, look,
                          toResponse, serveFile, asContentType, ServerPart,
                          ServerPartT, HasRqData)
 import Skirvy.Odds.Calculator (calculate, outcomeCounts)
-import Text.Blaze.Html5 as H (Html, html, body, span, toHtml, table, tr, td)
+import Text.Blaze.Html5 as H (Html, html, body, span, toHtml, table, tr, td, th)
 import Text.Blaze.Html5.Attributes as A ()
 import Data.Map.Lazy as M (Map, foldrWithKey)
+import Text.Printf (printf)
 
 handleRequest :: IO ()
 handleRequest = simpleHTTP nullConf $ msum routes
@@ -29,16 +30,24 @@ handleCalculateRequest =
 lookInt :: (HasRqData m, Monad m) => String -> m Int
 lookInt = liftM read . look
 
-aTable :: (M.Map Int Int, M.Map Int Int) -> H.Html
-aTable (winCounts, lossCounts) = H.table $ rowsFromMap winCounts
+aTable :: (M.Map Int (Int,Float), M.Map Int (Int,Float)) -> H.Html
+aTable (winCounts, lossCounts) = H.table $ H.tr $ 
+                                   do H.th $ H.toHtml "Remainder"
+                                      H.th $ H.toHtml "Count"
+                                      H.th $ H.toHtml "Percentage"
+                                      rowsFromMap winCounts
 
-rowsFromMap :: M.Map Int Int -> H.Html
+rowsFromMap :: M.Map Int (Int,Float) -> H.Html
 rowsFromMap m = M.foldrWithKey (\i j rs -> combine rs (tableRow i j)) (H.toHtml "") m
 
 combine :: H.Html -> H.Html -> H.Html
 combine a b = a >> b
 
-tableRow :: Int -> Int -> H.Html
+tableRow :: Int -> (Int,Float) -> H.Html
 tableRow a b = H.tr $ do
                         H.td $ H.toHtml a
-                        H.td $ H.toHtml b
+                        H.td $ H.toHtml $ fst b
+                        H.td $ H.toHtml $ formatFloat $ snd b
+
+formatFloat :: Float -> String
+formatFloat f = printf "%.3f" f
