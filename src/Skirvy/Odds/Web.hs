@@ -6,7 +6,7 @@ import Control.Monad (msum, liftM)
 import Happstack.Server (nullConf, simpleHTTP, ok, dir, nullDir, look,
                          serveDirectory, Browsing (DisableBrowsing), Response,
                          toResponse, serveFile, asContentType, ServerPart,
-                         ServerPartT, HasRqData)
+                         ServerPartT, HasRqData, Conf(..), logMAccess)
 import Skirvy.Odds.Calculator (partitionedOutcomes)
 import Text.Blaze as B (stringValue, stringTag, dataAttribute)
 import Text.Blaze.Html5 as H (Html, html, body, span, toHtml, table, tr, td, th, h4, link, (!),
@@ -16,7 +16,16 @@ import Data.Map.Lazy as M (Map, foldrWithKey, elems)
 import Text.Printf (printf)
 
 handleRequest :: IO ()
-handleRequest = simpleHTTP nullConf $ msum routes
+handleRequest = simpleHTTP skirvyOddsConf $ msum routes
+
+skirvyOddsConf :: Conf
+skirvyOddsConf = Conf {
+  port = 8080,
+  validator = Nothing,
+  logAccess = Just logMAccess,
+  timeout = 30,
+  threadGroup = Nothing
+}
 
 routes :: [ServerPartT IO Response]
 routes = [ dir "calculate" $ handleCalculateRequest,
