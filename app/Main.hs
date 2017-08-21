@@ -12,4 +12,8 @@ main = do putStrLn "Starting ... "
           putStrLn "--------------------"
           putStrLn "Contents of tmp"
           mapM_ putStrLn tmpStuff
+--          webStuff <- listDirectory "/tmp/web-assets"
+--          putStrLn "--------------------"
+--          putStrLn "Contents of web"
+--          mapM_ putStrLn webStuff
           handleRequest
