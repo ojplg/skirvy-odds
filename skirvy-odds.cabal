@@ -12,6 +12,7 @@ category:            Web
 build-type:          Simple
 extra-source-files:  README.md
 cabal-version:       >=1.10
+data-dir:         web-assets
 
 library
   hs-source-dirs:      src
