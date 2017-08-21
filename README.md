@@ -8,8 +8,8 @@ After cloning, assuming you have stack installed just:
 
 1. stack setup
 2. stack build
-3. stack exec skirvy-odds-exe
-4. Navigate browser to localhost:8000
+3. stack exec server
+4. Navigate browser to localhost:8080
 
 If you do not have stack, you can just use Cabal. If you do
 not have Cabal, you can just use ghc. If you don't know what
