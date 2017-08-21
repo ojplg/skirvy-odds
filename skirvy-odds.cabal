@@ -22,6 +22,7 @@ library
                      , containers
                      , blaze-html
                      , blaze-markup
+                     , directory
   default-language:    Haskell2010
 
 executable server
@@ -32,6 +33,7 @@ executable server
                      , skirvy-odds
                      , blaze-html
                      , blaze-markup
+                     , directory
   default-language:    Haskell2010
 
 test-suite skirvy-odds-test
