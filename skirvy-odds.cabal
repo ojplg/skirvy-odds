@@ -20,6 +20,7 @@ library
                      , happstack-server
                      , containers
                      , blaze-html
+                     , blaze-markup
   default-language:    Haskell2010
 
 executable skirvy-odds-exe
@@ -29,6 +30,7 @@ executable skirvy-odds-exe
   build-depends:       base
                      , skirvy-odds
                      , blaze-html
+                     , blaze-markup
   default-language:    Haskell2010
 
 test-suite skirvy-odds-test
