@@ -30,3 +30,12 @@ extra-package-dbs: []
 # Extra directories used by stack for building
 # extra-include-dirs: [/path/to/dir]
 # extra-lib-dirs: [/path/to/dir]
+
+image:
+  container:
+    base: "fpco/ubuntu-with-libgmp:14.04"
+    name: "skirvy-odds"
+    add:
+      web-assets/: /web-assets/      
+    entrypoints:
+      - server
