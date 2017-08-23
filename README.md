@@ -11,6 +11,11 @@ After cloning, assuming you have stack installed just:
 3. stack exec server
 4. Navigate browser to localhost:8080
 
-If you do not have stack, you can just use Cabal. If you do
-not have Cabal, you can just use ghc. If you don't know what
+If you do not have stack, you can just use cabal. If you do
+not have cabal, you can just use ghc. If you don't know what
 ghc is, this might not be the project for you.
+
+# in action
+
+I set up an AWS instance of the application running 
+[here](ec2-13-59-240-22.us-east-2.compute.amazonaws.com/calculate?attacker=24&defender=19). It might be up.
