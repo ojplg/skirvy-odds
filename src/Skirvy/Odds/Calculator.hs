@@ -9,6 +9,17 @@ data BattleCounter = BattleCounter { attacker :: Int, defender :: Int } deriving
 ratioAsFloat :: Int -> Int -> Float
 ratioAsFloat num den = (fromIntegral num) / (fromIntegral den)
 
+{- |
+  The 'partitionedOutcomes' function takes two integers:
+  the first representing the number of attacking armies,
+  and the second representing the number of defending 
+  armies. The resultant tuple contains maps representing
+  the percentage chances of each possible outcome assuming
+  the battle is fought to completion. The first item in
+  the tuple is the number of remaining armies for the 
+  attacker, the second is the number of remaining armies
+  for the defender.
+-}
 partitionedOutcomes :: Int -> Int -> (M.Map Int Float, M.Map Int Float)
 partitionedOutcomes att def = (M.mapKeys remainder as, M.mapKeys remainder ds)
   where (as, ds) = partitionedOutcomes' att def
