@@ -10,10 +10,11 @@ import Happstack.Server (nullConf, simpleHTTP, ok, dir, nullDir, look,
 import Skirvy.Odds.Calculator (partitionedOutcomes)
 import Text.Blaze as B (stringValue, stringTag, dataAttribute)
 import Text.Blaze.Html5 as H (Html, html, body, span, toHtml, table, tr, td, th, h4, link, (!),
-                              docTypeHtml, head, title, thead, tbody)
-import Text.Blaze.Html5.Attributes as A (rel, href, class_)
-import Data.Map.Lazy as M (Map, foldrWithKey, elems)
+                              docTypeHtml, head, title, thead, tbody, script, canvas)
+import Text.Blaze.Html5.Attributes as A (rel, href, class_, src, id, width, height, onload)
+import Data.Map.Lazy as M (Map, foldrWithKey, elems, keys, size)
 import Text.Printf (printf)
+import Data.List as L (reverse, map, replicate)
 
 handleRequest :: IO ()
 handleRequest = simpleHTTP skirvyOddsConf $ msum routes
@@ -36,7 +37,12 @@ handleCalculateRequest :: ServerPart Response
 handleCalculateRequest =
   do attacker <- lookInt "attacker"
      defender <- lookInt "defender"
-     ok $ toResponse $ page $ renderOutcomes $ partitionedOutcomes attacker defender
+     ok $ toResponse $ page $ content attacker defender
+
+content att def = (headContent, bodyContent)
+  where outcomes = partitionedOutcomes att def
+        bodyContent = renderOutcomes outcomes
+        headContent = asChartInput outcomes
 
 renderOutcomes :: (M.Map Int Float, M.Map Int Float) -> H.Html
 renderOutcomes (attackerWins, defenderWins) = do
@@ -44,6 +50,14 @@ renderOutcomes (attackerWins, defenderWins) = do
                                                 asTable attackerWins 
                                                 H.h4 $ H.toHtml $ "Defender Wins " ++ percentagesSum defenderWins
                                                 asTable defenderWins
+                                                H.canvas ! A.id (B.stringValue "chart") ! A.width (B.stringValue "100") ! A.height (B.stringValue "40") $ H.toHtml ""
+
+asChartInput :: (M.Map Int Float, M.Map Int Float) -> H.Html
+asChartInput (attackerWins, defenderWins) = H.script $ H.toHtml $ (histAxis ++ histValues ++ colors)
+  where histAxis = "histAxis=" ++ (show $ L.map show $ ((L.reverse $ M.keys attackerWins) ++ (M.keys defenderWins))) ++ ";"
+        histValues = "histValues=" ++ (show $ (L.reverse $ M.elems attackerWins ++ M.elems defenderWins)) ++ ";"
+        colors = "colorValues=" ++ (show ((L.replicate (M.size attackerWins) "rgba(54, 162, 235, 0.2)") 
+                                            ++ (L.replicate (M.size defenderWins) "rgba(255, 99, 132, 0.2)"))) ++ ";"
 
 percentagesSum :: M.Map Int Float -> String
 percentagesSum m = formatFloat $ sum $ M.elems m
@@ -72,12 +86,21 @@ tableRow a b = H.tr $ do
 formatFloat :: Float -> String
 formatFloat f = printf "%.4f" f
 
-page :: H.Html -> H.Html
-page content = H.docTypeHtml $ do
+page :: (H.Html, H.Html) -> H.Html
+page (headContent, content) = H.docTypeHtml $ do
                   H.head $ do
                     H.title (H.toHtml "Skirvy Odds Results")
                     pureStylesheet
-                  H.body $ do content
+                    chartJs
+                    chartLibJs
+                    headContent
+                  H.body ! A.onload (B.stringValue "drawChart();") $ do content
+
+chartLibJs :: H.Html
+chartLibJs = H.script ! A.src (B.stringValue "https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.min.js") $ H.toHtml ""
+
+chartJs :: H.Html
+chartJs = H.script ! A.src (B.stringValue "static/chart.js") $ H.toHtml ""
 
 pureStylesheet :: H.Html
 pureStylesheet = H.link ! A.rel (B.stringValue "stylesheet") 
