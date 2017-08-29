@@ -55,7 +55,7 @@ renderOutcomes (attackerWins, defenderWins) = do
 asChartInput :: (M.Map Int Float, M.Map Int Float) -> H.Html
 asChartInput (attackerWins, defenderWins) = H.script $ H.toHtml $ (histAxis ++ histValues ++ colors)
   where histAxis = "histAxis=" ++ (show $ L.map show $ ((L.reverse $ M.keys attackerWins) ++ (M.keys defenderWins))) ++ ";"
-        histValues = "histValues=" ++ (show $ (L.reverse $ M.elems attackerWins ++ M.elems defenderWins)) ++ ";"
+        histValues = "histValues=" ++ (show $ ((L.reverse $ M.elems attackerWins) ++ (M.elems defenderWins))) ++ ";"
         colors = "colorValues=" ++ (show ((L.replicate (M.size attackerWins) "rgba(54, 162, 235, 0.2)") 
                                             ++ (L.replicate (M.size defenderWins) "rgba(255, 99, 132, 0.2)"))) ++ ";"
 
